@@ -9,16 +9,16 @@ c = dict()
 c["adler32"] = zlib.adler32
 c["crc32"] = zlib.crc32
 c["crc16"] = crc16.crc16xmodem
-with open("wordsEn.txt") as f:
-	for line in f:
-		line = line.rstrip()
-		for crc_type in c:
-			crc = c[crc_type](line)
-			if( crc in d[crc_type] ):
-				d[crc_type][crc] += 1
-			else:
-				d[crc_type][crc] = 0
 
+import fileinput
+for line in fileinput.input():
+	line = line.rstrip()
+	for crc_type in c:
+		crc = c[crc_type](line)
+		if( crc in d[crc_type] ):
+			d[crc_type][crc] += 1
+		else:
+			d[crc_type][crc] = 0
 import operator
 for crc_type in d:
 	print crc_type
