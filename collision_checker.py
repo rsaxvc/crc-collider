@@ -1,30 +1,26 @@
 import zlib
 import crc16
 
-d = dict()
-d["adler32"] = dict()
-d["crc32"] = dict()
-d["crc16"] = dict()
-c = dict()
-c["adler32"] = zlib.adler32
-c["crc32"] = zlib.crc32
-c["crc16"] = crc16.crc16xmodem
+crc_table = dict()
+crc_table["adler32"] = ( zlib.adler32, dict() )
+crc_table["crc32"] = ( zlib.crc32, dict() )
+crc_table["crc16"] = ( crc16.crc16xmodem, dict() )
 
 import fileinput
 for line in fileinput.input():
 	line = line.rstrip()
-	for crc_type in c:
-		crc = c[crc_type](line)
-		if( crc in d[crc_type] ):
-			d[crc_type][crc] += 1
+	for crc_type in crc_table:
+		crc = crc_table[crc_type][0](line)
+		if( crc in crc_table[crc_type][1] ):
+			crc_table[crc_type][1][crc] += 1
 		else:
-			d[crc_type][crc] = 0
+			crc_table[crc_type][1][crc] = 0
 import operator
-for crc_type in d:
+for crc_type in crc_table:
 	print crc_type
 	old = 0
 	count = 0
-	for x in sorted( d[crc_type].items(), key=operator.itemgetter(1)):
+	for x in sorted( crc_table[crc_type][1].items(), key=operator.itemgetter(1)):
 		if( x[1] != old ):
 			print "\t",old, count
 			old = x[1]
